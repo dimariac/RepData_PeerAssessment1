@@ -1,21 +1,15 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "Costanzo Di Maria"
-date: "29 September 2017"
-output: 
-  html_document: 
-    keep_md: yes
----
+# Reproducible Research: Peer Assessment 1
+Costanzo Di Maria  
+29 September 2017  
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 
 **1. Loading and pre-processing the data.**  
 Load the data and apply any transformation needed for subsequent analysis.
 
-```{r import_data}
+
+```r
 fileName <- "activity.zip"
 data <- read.csv(unzip(fileName), header=TRUE)
 data$date <- as.Date(data$date)
@@ -25,15 +19,21 @@ data$date <- as.Date(data$date)
 Make a histogram of the total number of steps taken each day. Calculate and 
 report the mean and median total number of steps taken per day.
 
-```{r daily_steps}
+
+```r
 steps_per_day <- tapply(data$steps, data$date, sum, na.rm=TRUE)
 hist(steps_per_day)
+```
+
+![](PA1_template_files/figure-html/daily_steps-1.png)<!-- -->
+
+```r
 mean_steps <- as.integer(mean(steps_per_day))
 median_steps <- as.integer(median(steps_per_day))
 ```
 
-The mean number of daily steps was `r format(mean_steps, decimals=0)`; and the 
-median was `r format(median_steps, decimals=0)`.
+The mean number of daily steps was 9354; and the 
+median was 10395.
 
 **3. What is the average daily activity pattern?**  
 Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and 
@@ -41,15 +41,21 @@ the average number of steps taken, averaged across all days (y-axis). Which
 5-minute interval, on average across all the days in the dataset, contains the 
 maximum number of steps?
 
-```{r daily_activity_pattern}
+
+```r
 steps_by_interval <- tapply(data$steps, data$interval, mean, na.rm=TRUE)
 intervals <- as.numeric(names(steps_by_interval))
 plot(intervals, steps_by_interval, type="l")
+```
+
+![](PA1_template_files/figure-html/daily_activity_pattern-1.png)<!-- -->
+
+```r
 interval_max <- as.numeric(names(which.max(steps_by_interval)))
 ```
 
 The 5-minute interval containing the maximum number of steps, on average across 
-all days, is the interval `r interval_max`.
+all days, is the interval 835.
 
 **4. Imputing missing values.**  
 Calculate and report the total number of missing values in the dataset.
@@ -63,7 +69,8 @@ Do these values differ from the estimates from the first part of the assignment?
 What is the impact of imputing missing data on the estimates of the total
 daily number of steps?
 
-```{r imputing_missing_values}
+
+```r
 n_missing_values <- sum(is.na(data$steps))
 
 # Replace missing value using the mean value for the corresponding 5-minute interval.
@@ -78,14 +85,19 @@ for (i in 1:n_rows){
 
 steps_per_day_imputed <- tapply(data_imputed$steps, data_imputed$date, sum)
 hist(steps_per_day_imputed)
+```
+
+![](PA1_template_files/figure-html/imputing_missing_values-1.png)<!-- -->
+
+```r
 mean_steps_imputed <- as.integer(mean(steps_per_day_imputed))
 median_steps_imputed <- as.integer(median(steps_per_day_imputed))
 ```
 
-There are `r n_missing_values` missing values in the dataset.  
+There are 2304 missing values in the dataset.  
 The missing value NA were replaced with the mean value for the corresponding 
 5-minute interval. After imputing the missing data, the mean number of daily steps was 
-`r mean_steps_imputed`; and the median was `r median_steps_imputed`. For the 
+10766; and the median was 10766. For the 
 original dataset, the distribution was slightly skewed to the right 
 (more small values). After filling in the missing values, the distribution is 
 closer to a normal distribution. The mean value increases, and the median value
@@ -98,7 +110,8 @@ day. Make a panel plot containing a time series plot (i.e. type = "l") of the
 5-minute interval (x-axis) and the average number of steps taken, averaged
 across all weekday days or weekend days (y-axis).
 
-```{r weekdays_vs_weekends, fig.height=8}
+
+```r
 data_imputed <- data.frame(data_imputed, is_weekend=(weekdays(data_imputed$date) %in% c("Saturday", "Sunday")))
 data_weekdays <- subset(data_imputed, is_weekend==FALSE)
 data_weekends <- subset(data_imputed, is_weekend==TRUE)
@@ -110,3 +123,5 @@ plot(intervals, steps_weekdays, type="l",
 plot(intervals, steps_weekends, type="l",
      main="weekends", ylab="steps_by_interval")
 ```
+
+![](PA1_template_files/figure-html/weekdays_vs_weekends-1.png)<!-- -->
